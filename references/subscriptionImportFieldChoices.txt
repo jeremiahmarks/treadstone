@@ -1,0 +1,36 @@
+
+<option value="">No match, pick an Infusionsoft field</option>
+
+
+<optgroup label="Special Field Options">
+    <option value="doNotImport">Do NOT import this field</option>
+</optgroup>
+
+
+<optgroup label="Subscription - Keys">
+    <option value="Recurring_Order.1.PrimaryForeignKey">Your System's Subscription Id</option>
+    <option value="Recurring_Order.1.ContactId">Infusionsoft's Contact Id</option>
+    <option value="Recurring_Order.1.SubscriptionPlanId">Subscription Plan Id</option>
+    <option value="Recurring_Order.1.ProductId">Product Id</option>
+    <option value="Recurring_Order.1.ProgramId">Program Id</option>
+    <option value="Recurring_Order.1.LeadAffiliateId">Infusionsoft's Lead Affiliate Id</option>
+    <option value="Recurring_Order.1.AffiliateId">Infusionsoft's Sale Affiliate Id</option>
+    <option value="Recurring_Order.1.CC1">Credit Card Id</option>
+    <option value="Recurring_Order.1.PaymentGatewayId">Payment Gateway Id</option>
+</optgroup>
+
+<optgroup label="Subscription - Recurring_Order">
+    <option value="Recurring_Order.1.Frequency">Frequency</option>
+    <option value="Recurring_Order.1.BillingCycle">Cycle</option>
+    <option value="Recurring_Order.1.BillingAmt">Price</option>
+    <option value="Recurring_Order.1.PromoCode">Promo Code</option>
+    <option value="Recurring_Order.1.OrderType">Order Type</option>
+    <option value="Recurring_Order.1.Status">Status</option>
+    <option value="Recurring_Order.1.StartDate">Start Date</option>
+    <option value="Recurring_Order.1.EndDate">End Date</option>
+    <option value="Recurring_Order.1.ReasonStopped">Reason Stopped</option>
+    <option value="Recurring_Order.1.LastBillDate">Paid Thru Date</option>
+    <option value="Recurring_Order.1.AutoCharge">Auto Charge</option>
+    <option value="Recurring_Order.1.MaxRetry">Max Charge Attempts</option>
+    <option value="Recurring_Order.1.NumDaysBetweenRetry">Num Days Between Retry</option>
+</optgroup>
