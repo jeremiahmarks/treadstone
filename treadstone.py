@@ -3,7 +3,7 @@
 # @Author: Jeremiah Marks
 # @Date:   2015-09-25 03:07:15
 # @Last Modified 2015-09-25
-# @Last Modified time: 2015-09-25 04:14:57
+# @Last Modified time: 2015-09-25 17:58:35
 
 # This is the main script for  Project Treadstone.
 
@@ -31,16 +31,16 @@ tk.Tk().withdraw()
 #############################################
 
 subsImportAvailCols={}
-subsImportAvailCols["Do NOT import this field"] = {"required": False, "helpText": "SomeStringHere"}
-subsImportAvailCols["Your System's Subscription Id"] = {"required": False, "helpText": "SomeStringHere"}
-subsImportAvailCols["Infusionsoft's Contact Id"] = {"required": False, "helpText": "SomeStringHere"}
-subsImportAvailCols["Subscription Plan Id"] = {"required": False, "helpText": "SomeStringHere"}
-subsImportAvailCols["Product Id"] = {"required": False, "helpText": "SomeStringHere"}
-subsImportAvailCols["Program Id"] = {"required": False, "helpText": "SomeStringHere"}
-subsImportAvailCols["Infusionsoft's Lead Affiliate Id"] = {"required": False, "helpText": "SomeStringHere"}
+subsImportAvailCols["Do NOT import this field"] = {"required": False, "helpText": "If you want to not import this column"}
+subsImportAvailCols["Your System's Subscription Id"] = {"required": False, "helpText": "Generally avoid this. If you jack up an import, you will have to remove it anyway."}
+subsImportAvailCols["Infusionsoft's Contact Id"] = {"required": True, "helpText": "If you have a subscription, someone has to pay for it.  This is that someone."}
+subsImportAvailCols["Subscription Plan Id"] = {"required": True, "helpText": "This is the Id of the actual subscription plan that you are using. It is the \"Every 3 weeks for 1 week\" part of the product."}
+subsImportAvailCols["Product Id"] = {"required": True, "helpText": "Yeah, yeah, the subscription plan id is unique and can only be tied to one product. Why do we need the product id?  That is a great question. You can await my reply if you like. "}
+subsImportAvailCols["Program Id"] = {"required": False, "helpText": "Pretty sure that this is required.  It is the Id from the CProgram table"}
+subsImportAvailCols["Infusionsoft's Lead Affiliate Id"] = {"required": False, "helpText": "You know the drill"}
 subsImportAvailCols["Infusionsoft's Sale Affiliate Id"] = {"required": False, "helpText": "SomeStringHere"}
-subsImportAvailCols["Credit Card Id"] = {"required": False, "helpText": "SomeStringHere"}
-subsImportAvailCols["Payment Gateway Id"] = {"required": False, "helpText": "SomeStringHere"}
+subsImportAvailCols["Credit Card Id"] = {"required": False, "helpText": "While it is not required, I think that it is required that the card be owned by the contact"}
+subsImportAvailCols["Payment Gateway Id"] = {"required": False, "helpText": "This needs to be the merchatn account id"}
 subsImportAvailCols["Frequency"] = {"required": False, "helpText": "SomeStringHere"}
 subsImportAvailCols["Cycle"] = {"required": False, "helpText": "SomeStringHere"}
 subsImportAvailCols["Price"] = {"required": False, "helpText": "SomeStringHere"}
