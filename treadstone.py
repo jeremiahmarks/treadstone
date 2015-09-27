@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Author: Jeremiah Marks
 # @Date:   2015-09-25 03:07:15
-# @Last Modified 2015-09-25
-# @Last Modified time: 2015-09-25 17:58:35
+# @Last Modified 2015-09-27
+# @Last Modified time: 2015-09-27 03:20:27
 
 # This is the main script for  Project Treadstone.
 
@@ -12,9 +12,12 @@ import os                                   # Since I am working in the file sys
                                             # system directly.
 import csv                                  # because we're using csvs, ya know?
 import xmlrpclib                            # This is needed to interact with the API
+import uuid                                 # This is so that we can generate UUIDs
+from datetime import datetime               # So that we can work with dates in one nice way.
+
 from bs4 import BeautifulSoup               # This is the HTML parser I use
 from robobrowser import RoboBrowser         # This is the "browser" that I use
-
+from local import settings                  # This is where I am storing variables for dev purposes
 
 #############################################
 ## So, it is quickly going to be obvious that I don't know
@@ -22,6 +25,7 @@ from robobrowser import RoboBrowser         # This is the "browser" that I use
 import Tkinter as tk
 import tkFileDialog
 tk.Tk().withdraw()
+
 
 
 #############################################
@@ -42,7 +46,7 @@ subsImportAvailCols["Infusionsoft's Sale Affiliate Id"] = {"required": False, "h
 subsImportAvailCols["Credit Card Id"] = {"required": False, "helpText": "While it is not required, I think that it is required that the card be owned by the contact"}
 subsImportAvailCols["Payment Gateway Id"] = {"required": False, "helpText": "This needs to be the merchatn account id"}
 subsImportAvailCols["Frequency"] = {"required": False, "helpText": "SomeStringHere"}
-subsImportAvailCols["Cycle"] = {"required": False, "helpText": "SomeStringHere"}
+subsImportAvailCols["Cycle"] = {"required": True, "helpText": "Must be one of the following numbers: 6 (Daily) - 2 (Month) - 3 (Weekly) - 1 (Year)"}
 subsImportAvailCols["Price"] = {"required": False, "helpText": "SomeStringHere"}
 subsImportAvailCols["Promo Code"] = {"required": False, "helpText": "SomeStringHere"}
 subsImportAvailCols["Order Type"] = {"required": False, "helpText": "SomeStringHere"}
@@ -71,15 +75,16 @@ subsImportAvailCols["Num Days Between Retry"] = {"required": False, "helpText": 
 
 
 class ISServer:
-    def __init__(self):
-        global pw
-        self.pw = pw
+    def __init__(self, appname, apikey):
+        global settings
+        self.pw = settings
         self.startingpath = os.path.abspath(os.curdir)
-        self.infusionsoftapp=self.getappname()
+        self.infusionsoftapp=appname
         self.baseurl = 'https://' + self.infusionsoftapp + '.infusionsoft.com/'
-        self.infusionsoftAPIKey=self.getapikey()
+        self.infusionsoftAPIKey=apikey
         self.appurl = "https://" + self.infusionsoftapp + ".infusionsoft.com:443/api/xmlrpc"
         self.connection = xmlrpclib.ServerProxy(self.appurl)
+        self.browser = RoboBrowser(history=True)
 
     def getappname(self):
         return raw_input("Please enter appname:").strip('\n \t')
@@ -89,7 +94,6 @@ class ISServer:
         password = self.pw['password']
         #Basically:
         #    #Add username and password to your global variables.
-        self.browser = RoboBrowser(history=True)
         self.browser.open(self.baseurl)
         logform = self.browser.get_form()
         logform.fields['username'].value = username
@@ -316,3 +320,84 @@ tables["UserGroup"] = ["Id", "Name", "OwnerId"]
 ###########################################################
 ###########################################################
 ###########################################################
+#   This is where various methods will reside specific to
+#   this project.  They may get added to other projects,
+#   But this is where they live for now.
+###########################################################
+###########################################################
+###########################################################
+def findSubByUUIDInReasonStopped(apiConnection, uuid):
+    """This method is useful if you have stashed a uuid
+    in the ReasonStopped field.
+    """
+    return apiConnection.getAllRecords('RecurringOrder', searchCriteria={'ReasonStopped': '%'+uuid+'%'})
+def prepareForInvoices(apiConnection, subscriptionId):
+    """This method will serve to remove the end date from a
+    subscription. If there is no existing end date, it will
+    return None.
+
+    It was going to return the original end date, however I
+    would rather save the API calls and assume that you
+    were able to get that at the same time you found the
+    subscriptionId
+    """
+    return apiConnection.updateRecord('RecurringOrder', subscriptionId, {"AutoCharge": 1, 'EndDate': ''})
+
+####
+#  recurringOrder=tcon.getAllRecords('RecurringOrder', searchCriteria={'Id': 131})
+
+
+
+def deleteInvoicesForSubscriptions(apiConnection, subscriptionId, deleteAfter=None):
+    jobsData = apiConnection.getAllRecords('Job', searchCriteria={'JobRecurringId': subscriptionId})
+    for eachJob in jobsData:
+        duedate = datetime.strptime(eachJob['DueDate'].value, '%Y%m%dT%H:%M:%S')
+        if deleteAfter is None or duedate>deleteAfter:
+            invoiceData = apiConnection.getAllRecords('Invoice', searchCriteria={'JobId': eachJob['Id']})
+            if len(invoiceData) > 0:
+                for eachInvoice in invoiceData:
+                    apiConnection.connection.InvoiceService.deleteInvoice(settings['apikey'], eachInvoice['Id'])
+
+
+###########################################################
+###########################################################
+###########################################################
+#
+#   Below here are only methods that I use to test
+#   individual parts of the script as I am building it
+#   If I am good about it, they should be name sequentially
+#   And that is all that should exist below this line.
+###########################################################
+###########################################################
+###########################################################
+
+
+
+def v1():
+    modifiedData=[] # This is to store the csv data after it has been modified
+    with open(settings['inputcsv'], 'rb') as infile:
+        thisreader = csv.DictReader(infile)
+        for eachline in thisreader:
+            thisrow = dict(eachline)
+            if 'PromoCode' not in thisrow.keys():
+                thisrow['PromoCode']=""
+            thisrow['PromoCode']+=str(uuid.uuid4())
+            # Lets take this(Promocode) out at first, and then put it back later
+            modifiedData.append(thisrow)
+    with open(settings['outputcsv'], 'wb') as outfile:
+        thiswriter = csv.DictWriter(outfile, modifiedData[0].keys())
+        thiswriter.writeheader()
+        thiswriter.writerows(modifiedData)
+    raw_input("Please import the file and press enter after it has completed processing!")
+
+def v2():
+    apiConnection = ISServer(settings['appname'], settings['apikey'])
+    thissub = findSubByUUIDInReasonStopped(apiConnection, "37ab5c71-0bdf-43d1-9bde-26054d705213")
+    if len(thissub) >1:
+        print "Many found for, using first."
+    prepareForInvoices(apiConnection, thissub[0]['Id'])
+    apiConnection.connection.InvoiceService.createInvoiceForRecurring(settings['apikey'], thissub[0]['Id'])
+
+
+
+
