@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Author: Jeremiah Marks
 # @Date:   2015-09-25 03:07:15
-# @Last Modified 2015-09-27
-# @Last Modified time: 2015-09-27 03:20:27
+# @Last Modified 2015-09-28
+# @Last Modified time: 2015-09-28 01:05:15
 
 # This is the main script for  Project Treadstone.
 
@@ -19,6 +19,10 @@ from bs4 import BeautifulSoup               # This is the HTML parser I use
 from robobrowser import RoboBrowser         # This is the "browser" that I use
 from local import settings                  # This is where I am storing variables for dev purposes
 
+import dropdownmatching
+
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 #############################################
 ## So, it is quickly going to be obvious that I don't know
 ## UX/UI stuff.  This is my meager attempt toward that.
@@ -26,6 +30,9 @@ import Tkinter as tk
 import tkFileDialog
 tk.Tk().withdraw()
 
+
+def getFilePath():
+    return tkFileDialog.askopenfilename()
 
 
 #############################################
@@ -358,6 +365,158 @@ def deleteInvoicesForSubscriptions(apiConnection, subscriptionId, deleteAfter=No
                 for eachInvoice in invoiceData:
                     apiConnection.connection.InvoiceService.deleteInvoice(settings['apikey'], eachInvoice['Id'])
 
+class importError(object):
+    def __init__(self, message, context=None):
+        self.timestamp = datetime.now().strftime("%Y%b%d %H:%M:%S").replace(' ', '').replace(':', '')
+        self.message = message
+        if context is None:
+            self.context = "Whelp, you're a dumbass."
+        else:
+            self.context = str(context)
+
+
+
+class HisSubImp(object):
+    """This is the historic Import tool.  Yay!
+    It will be started by passing it the name of an application.
+    If you are on the IS network and have your credentials set
+    up properly, that is all that you will need to pass it.
+    If not, you will need to pass it the username and password
+    for the application.
+    """
+    def __init__(self, appname, username, password, pathtocsv, apikey):
+        self.appname = appname
+        self.username = username
+        self.password = password
+        self.apikey = apikey
+        self.pathtocsv = pathtocsv
+        self.api=ISServer(appname, apikey)
+        self.starttime = self.gettimestamp()
+        self.log=[]
+        self.startfolder = os.path.abspath(os.path.curdir)
+        self.applicationfolder = os.path.abspath(os.path.join(os.path.abspath(os.path.curdir), appname))
+        if not os.path.exists(self.applicationfolder):
+            os.makedirs(self.applicationfolder)
+        elif os.path.isfile(self.applicationfolder):
+            newpath = os.path.abspath(os.path.join(os.path.abspath(os.path.curdir), appname + "FOLDER"))
+            log.append(importError("Path" + str(self.applicationfolder) + " exists as a file. Using " + str(newpath) + " instead."))
+            self.applicationfolder = newpath
+            if not os.path.exists(self.applicationfolder):
+                os.makedirs(self.applicationfolder)
+        os.chdir(self.applicationfolder)
+        self.idlog = os.path.abspath(os.path.join(os.path.abspath(self.applicationfolder), 'largestids.csv'))
+        self.instancefolder = os.path.abspath(os.path.join(os.path.abspath(os.path.curdir), self.starttime))
+        os.makedirs(self.instancefolder)
+        os.chdir(self.instancefolder)
+        self.startvals = self.tableSnapshot()
+
+    def gettimestamp(self):
+        return datetime.now().strftime("%Y%b%d %H:%M:%S").replace(' ', '').replace(':', '')
+
+    def getmaxid(self, table):
+        # basically:
+        numberofrecords = 1
+        pagetogetrecordfrom = 0
+        searchCriteria = {}
+        interestingData = ['Id']
+        sortby = interestingData
+        lowestfirst=False
+        largestrecord = self.api.connection.DataService.query(self.apikey,
+                                                     table, numberofrecords,
+                                                     pagetogetrecordfrom,
+                                                     searchCriteria, interestingData,
+                                                     sortby, lowestfirst)[0]['Id']
+        self.updatemaxrecordfile(table, largestrecord)
+        return largestrecord
+
+    def updatemaxrecordfile(self, tablename, maxid):
+        record={}
+        record['currenttime'] = self.gettimestamp()
+        record['tablename'] = tablename
+        record['maxid'] = maxid
+        if not os.path.exists(self.idlog):
+            with open(self.idlog, 'wb') as outfile:
+                thiswriter = csv.DictWriter(outfile, record.keys())
+                thiswriter.writeheader()
+        with open(self.idlog, 'a+') as loggedfile:
+            thiswriter=csv.DictWriter(loggedfile, record.keys())
+            thiswriter.writerow(record)
+
+    def tableSnapshot(self):
+        snapshot={}
+        snapshot['timestamp'] = self.gettimestamp()
+        for eachtable in ["CCharge", "CProgram", "Contact", "CreditCard", "Invoice", "InvoiceItem", "InvoicePayment", "Job", "JobRecurringInstance", "PayPlan", "PayPlanItem", "Payment", "RecurringOrder", "SubscriptionPlan"]:
+            snapshot[eachtable] = self.getmaxid(eachtable)
+        return snapshot
+
+
+    def prepareFile(self):
+        self.importfile = os.path.join(os.path.abspath(self.instancefolder), self.gettimestamp() + ".csv")
+        with open(self.pathtocsv, 'rb') as infile:
+            mainreader = csv.DictReader(infile)
+            infields = list(mainreader.fieldnames)
+            if 'PromoCode' not in infields:
+                outfields = infields + ['PromoCode', ]
+            else:
+                outfields = infields[:]
+            with open(self.importfile, 'wb') as outfile:
+                thiswriter = csv.DictWriter(outfile, outfields)
+                thiswriter.writeheader()
+                for eachrow in mainreader:
+                    newrow = dict(eachrow)
+                    newrow["PromoCode"] = str(uuid.uuid4())
+                    #############
+                    ## I figure I can add it back through the API later, since I have the original file.
+                    #############
+                    # if "PromoCode" in newrow.keys():
+                    #     newrow["PromoCode"] = str(uuid.uuid4()) + newrow["PromoCode"]
+                    # else:
+                    #     newrow["PromoCode"] = str(uuid.uuid4())
+                    thiswriter.writerow(newrow)
+
+    def olduploadfile(self):
+        self.driver = webdriver.Firefox()
+        self.driver.maximize_window()
+        self.driver.get("https://" + self.appname + ".infusionsoft.com/")
+        elem = self.driver.find_element_by_id('username')
+        elem.send_keys(self.username)
+        elem = self.driver.find_element_by_id('password')
+        elem.send_keys(self.password)
+        elem.send_keys(Keys.RETURN)
+        self.driver.get("https://" + self.appname + ".infusionsoft.com/Import/jumpToWizard.jsp?update=false&profileClass=com.infusion.crm.db.importer.profiles.ROrderProfile")
+        self.driver.find_element_by_id("importFile").send_keys(self.importfile)
+        self.driver.find_element_by_id("Submit").click()
+        self.driver.find_element_by_id("Submit").click()
+        self.driver.find_element_by_id("Submit").click()
+        self.driver.find_element_by_id("Submit").click()
+
+    def uploadfile(self, newfile=False):
+        # This is going to assume that column matching will just happen
+        if newfile:
+            filetoupload = getFilePath()
+        else:
+            filetoupload = self.importfile
+        self.driver = webdriver.Firefox()
+        self.driver.maximize_window()
+        self.driver.get("https://" + self.appname + ".infusionsoft.com/")
+        elem = self.driver.find_element_by_id('username')
+        elem.send_keys(self.username)
+        elem = self.driver.find_element_by_id('password')
+        elem.send_keys(self.password)
+        elem.send_keys(Keys.RETURN)
+        self.driver.get("https://" + self.appname + ".infusionsoft.com/Import/jumpToWizard.jsp?update=false&profileClass=com.infusion.crm.db.importer.profiles.ROrderProfile")
+        driver.find_element_by_id("importFile").send_keys(filetoupload)
+        driver.find_element_by_id("Submit").click()
+        ##################################################################
+        ##
+        ##
+        ##  Matching columns still needs to happen here.
+        ##
+        ##
+        ####################################################################
+
+
+# I have no clue what this will do....
 
 ###########################################################
 ###########################################################
@@ -370,6 +529,7 @@ def deleteInvoicesForSubscriptions(apiConnection, subscriptionId, deleteAfter=No
 ###########################################################
 ###########################################################
 ###########################################################
+
 
 
 

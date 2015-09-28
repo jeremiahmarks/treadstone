@@ -1,0 +1,31 @@
+There are direct links to import modules. It is the same base URL, followed by the module name. Here is a way that that can be used:
+
+
+```python
+modules={}
+modules["Contacts"]= "ContactProfile":
+modules["ContactswithCreditCards"]= "ContactWithCreditCardProfile":
+modules["Companies"]= "CompanyProfile":
+modules["Tags"]= "ContactGroupProfile":
+modules["Products"]= "ProductProfile":
+modules["ProductswithaSubscriptionPlan"]= "SubscriptionPlanProfile":
+modules["TagsforContacts"]= "ContactGroupAssignProfile":
+modules["Notes"]= "ActivityLogProfile":
+modules["Task/Appointments"]= "TaskApptProfile":
+modules["EmailOptStatuses"]= "EmailOptHistoryProfile":
+modules["Orders(NoOrderItems)"]= "OrderProfileBasic":
+modules["Orders"]= "OrderProfile":
+modules["OrderItems"]= "OrderItemProfile":
+modules["Payment/Credit/Refunds"]= "PaymentProfile":
+modules["Subscriptions"]= "ROrderProfile":
+modules["ReferralPartners"]= "AffiliateProfile":
+modules["ReferralPartnerPrograms"]= "AffCommProgramProfile":
+modules["ReferralPartnerPayments"]= "AffiliatePaymentProfile":
+modules["Opportunities"]= "LeadProfile":
+
+
+
+
+def dirurl(appname, module):
+    return 'https://' + appname + '.infusionsoft.com/Import/jumpToWizard.jsp?update=false&profileClass=com.infusion.crm.db.importer.profiles.' + modules[module]
+

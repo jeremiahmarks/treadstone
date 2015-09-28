@@ -537,3 +537,100 @@ for eachJob in jobsData:
     else:
         print str(duedate) + " is less than "  + str(enddate)
         print "Boo"
+
+
+
+
+import os
+appf = os.path.abspath(os.path.join(os.path.curdir, 'if188'))
+appf
+os.path.isdir(appf)
+appf = os.path.abspath(os.path.join(os.path.curdir, 'flamingahole'))
+os.path.isdir(appf)
+os.path.isfile(appf)
+os.makedirs(appf)
+os.path.isfile(appf)
+os.path.isdir(appf)
+os.path.isdir(appf)
+os.path.isfile(appf)
+os.path.isfile(appf)
+os.makedirs(appf)
+a='/home/jlmarks/popopopopopopopo'
+os.makedirs(a)
+a=fullexport.fullexporter()
+if188
+a.apikey
+tt=a.svr.connection.DataService.query(a.apikey, 'Contact', 1, 0, {}, ['Id'], ['Id'], False)
+tt
+tt=a.svr.connection.DataService.query(a.apikey, 'Contact', 1, 0, {}, ['Id'], ['Id'], True)
+tt
+sys.path.append('/home/jlmarks/ts/')
+import treadstone
+a=treadstone.HisSubImp(pw['app'], pw['username'], pw['password'], '/home/jlmarks/somecsv.csv', pw['apikey'])
+sys.path.append('/home/jlmarks/ts/')
+import treadstone
+a=treadstone.HisSubImp(pw['app'], pw['username'], pw['password'], '/home/jlmarks/somecsv.csv', pw['apikey'])
+import os
+sys.path.append('/home/jlmarks/ts/')
+import treadstone
+a=treadstone.HisSubImp(pw['app'], pw['username'], pw['password'], '/home/jlmarks/somecsv.csv', pw['apikey'])
+sys.path.append('/home/jlmarks/ts/')
+import treadstone
+a=treadstone.HisSubImp(pw['app'], pw['username'], pw['password'], '/home/jlmarks/somecsv.csv', pw['apikey'])
+a.getmaxid('Contact')
+sys.path.append('/home/jlmarks/ts/')
+import treadstone
+a=treadstone.HisSubImp(pw['app'], pw['username'], pw['password'], '/home/jlmarks/somecsv.csv', pw['apikey'])
+a.getmaxid('Contact')
+sys.path.append('/home/jlmarks/ts/')
+import treadstone
+a=treadstone.HisSubImp(pw['app'], pw['username'], pw['password'], '/home/jlmarks/somecsv.csv', pw['apikey'])
+a.getmaxid('Contact')
+sys.path.append('/home/jlmarks/ts/')
+import treadstone
+a=treadstone.HisSubImp(pw['app'], pw['username'], pw['password'], '/home/jlmarks/somecsv.csv', pw['apikey'])
+a.getmaxid('Contact')
+sys.path.append('/home/jlmarks/ts/')
+import treadstone
+a=treadstone.HisSubImp(pw['app'], pw['username'], pw['password'], '/home/jlmarks/somecsv.csv', pw['apikey'])
+a.getmaxid('Contact')
+a.tableSnapshot()
+a.tableSnapshot()
+import uuid
+uuid.uuid4()
+pppp=uuid.uuid4()
+sys.path.append('/home/jlmarks/ts/')
+import treadstone
+a=treadstone.HisSubImp(pw['app'], pw['username'], pw['password'], '/home/jlmarks/if188start.csv', pw['apikey'])
+a.prepareFile()
+sys.path.append('/home/jlmarks/ts/')
+
+
+
+
+import treadstone
+a=treadstone.HisSubImp(pw['app'], pw['username'], pw['password'], '/home/jlmarks/if188start.csv', pw['apikey'])
+a.prepareFile()
+from robobrowser import RoboBrowser
+a=RoboBrowser(history=True)
+a.open('https://if188.infusionsoft.com')
+lo=a.get_form()
+lo.fields['username'].value=pw['username']
+lo.fields['password'].value=pw['password']
+a.submit_form(lo)
+a.open('https://if188.infusionsoft.com/app/nav/link?navSystem=nav.admin&navModule=nav.admin.import')
+a.response.content
+lo=a.get_form()
+lo
+lo.fields
+lo.fields.values
+lo.fields.values()
+lo.fields.values()[0]
+lo.fields.values()[0].value
+lo.fields['username'].value=pw['username']
+lo.fields['password'].value=pw['password']
+a.submit_form(lo)
+a.response.content
+print a.response.content
+pw['username']
+pw['password']

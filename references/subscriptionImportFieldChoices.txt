@@ -6,7 +6,7 @@
     <option value="doNotImport">Do NOT import this field</option>
 </optgroup>
 
-
+ Invalid Billing Cycle Value. Must be one of the following numbers:\n6 (Daily)\n2 (Month)\n3 (Weekly)\n1 (Year)'
 <optgroup label="Subscription - Keys">
     <option value="Recurring_Order.1.PrimaryForeignKey">Your System's Subscription Id</option>
     <option value="Recurring_Order.1.ContactId">Infusionsoft's Contact Id</option>
